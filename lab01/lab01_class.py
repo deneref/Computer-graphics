@@ -95,14 +95,18 @@ class triangle():
                               k*(result[i+2][0])+ self.canvas_width//2,\
                               k*(self.real_width - result[i+2][1])- self.canvas_height//2), dash = (4,2))
 
+        messagebox.showinfo("Результат",\
+                               "На данном множестве точек в треугольнике\nс вершинами [{} {}],[{} {}],[{} {}] разница количества точек,\n попавших в каждый из шести треугольников\nобразованных медианами максимальна".\
+                               format(int(result_x[0]), int(result_y[0]), int(result_x[1]), int(result_y[1]), int(result_x[2]), int(result_y[2])))
+
     def input_point(self):
         c.delete('all')
         self.draw_coord()
         self.print_points()
             
-        if len(self.x) >= 4:
-            self.result = prosses(self.x, self.y)
-            self.print_result_triangle(self.result)
+##        if len(self.x) >= 4:
+##            self.result = prosses(self.x, self.y)
+##            self.print_result_triangle(self.result)
 
     def draw_coord(self):
         #рисуем координаты
@@ -118,15 +122,14 @@ class triangle():
 
 def clear_press():
     c.delete('all')
-    draw_coord()
-    x = [];
-    y = [];
-    result = [];
+    points.x = [];
+    points.y = [];
+    points.result = [];
     points.real_width = 20;
     points.real_width = 20;
     points.len_of_points_label = 0
-    points_label_text = ''
-    points.draw_coords()
+    points_label_text.set('')
+    points.draw_coord()
 
 def enter_file_press():
     file_name = file_entry.get()
@@ -169,7 +172,11 @@ def draw_coordinates(event, a, b):
 
 def leave_canvas(event):
     label_coords['text'] = '(-/-)'
-    
+
+def plot_button_press():
+    if len(points.x) >= 4:
+        points.result = prosses(points.x, points.y)
+        points.print_result_triangle(points.result)
     
 root = Tk()
 root.title('Компьютерная графика. Лабораторная работа №1')
@@ -188,6 +195,11 @@ file_entry.grid(row = 3, column = 2, columnspan = 4)
 file_insert = Button(text = "Enter", width = 10, height = 2,\
                      command = lambda : enter_file_press())
 file_insert.grid(row = 4, column = 2, columnspan = 4)
+
+#Кнопка построить
+plot_button = Button(text = "Plot", width = 10, height = 2,\
+                     command = lambda : plot_button_press())
+plot_button.grid(row = 5, column = 2, columnspan = 4)
 
 #ввод для отдельных точек
 Label(text = "x: ").grid(row = 7, column = 2)
