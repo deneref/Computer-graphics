@@ -98,6 +98,7 @@ class MyWin(QtWidgets.QMainWindow):
             return 1
     def draw_brez_float_line(self, xn,yn,xk, yk):
         if(xn == xk and yn == yk):
+            
             self.scene.addLine(xn+self.scene_width//2,self.scene_height//2 - yn,\
                                xn+self.scene_width//2,self.scene_height//2 - yn, self.pen)
             return 0
@@ -119,6 +120,7 @@ class MyWin(QtWidgets.QMainWindow):
         while abs(x - xk) > 1 or abs(y - yk) > 1:
             self.scene.addLine(x+self.scene_width//2,self.scene_height//2 - y,\
                                 x+self.scene_width//2,self.scene_height//2 - y, self.pen)
+
             if f>0:
                 if flag == 1:
                     x += sx
@@ -138,38 +140,31 @@ class MyWin(QtWidgets.QMainWindow):
             self.scene.addLine(xn+self.scene_width//2,self.scene_height//2 - yn,\
                                xn+self.scene_width//2,self.scene_height//2 - yn, self.pen)
             return 0
-        dx = xk-xn
-        dy = yk-yn
-        sx = self.sign(dx)
-        sy = self.sign(dy)
-        dx = abs(dx); dy = abs(dy)
-        
-        m = dy/dx
+        x = xn
+        y = yn
+        dx = abs(xk - xn)
+        dy = abs(yk - yn)
+        sx = self.sign(xk - xn)
+        sy = self.sign(yk - yn)
         flag = 0
-        if m >= 1:
-            dx, dy = dy, dx
-            m = 1/m
+        if dy > dx:
+            dy, dx = dx, dy
             flag = 1
-        else:
-            flag = 0
-        fl = 2*sy - sx
-        x = xn; y = yn
+        e = 2 * dy - dx
         while abs(x - xk) > 1 or abs(y - yk) > 1:
-##            print(x ,' ', y)
             self.scene.addLine(x+self.scene_width//2,self.scene_height//2 - y,\
                                 x+self.scene_width//2,self.scene_height//2 - y, self.pen)
-            if fl>0:
-                if flag == 1:
+            while (e>=0):
+                if flag:
                     x += sx
                 else:
                     y += sy
-                fl -= 2*sx
+                e = e - 2*dx
+            if flag:
+                y += sy
             else:
-                if flag == 1:
-                    y += sy
-                else:
-                    x += sx
-                fl += 2*sy
+                x += sx
+            e = e + 2*dy
 
     def draw_brez_no_stup_line(self, xn, yn, xk, yk):
         I = 3
@@ -225,6 +220,15 @@ class MyWin(QtWidgets.QMainWindow):
                             xc+self.len*cos(angle), yc+self.len*sin(angle))
             except:
                 print(xc, ' ', yc, ' ', xc+self.len*cos(angle), ' ', yc+self.len*sin(angle))
+            angle += dfi
+
+    def comp_brez_int_line(self, xc, yc, angle):
+        angle = radians(angle)
+        count = 2*pi // angle #сколько линий построится
+        dfi = 2*pi / count
+        while angle < 2*pi+dfi:
+            self.draw_brez_int_line(xc,yc,\
+                            xc+self.len*cos(angle), yc+self.len*sin(angle))
             angle += dfi
         
     def draw_line(self):
