@@ -167,43 +167,51 @@ class MyWin(QtWidgets.QMainWindow):
             e = e + 2*dy
 
     def DrawPoint(self, flag, x, y, e):
-        Curr_pen = QtGui.QPen(self.color.lighter(100 + 50*(1-e)))
-        if flag:
-            x, y = y, x
+        Curr_pen = QtGui.QPen(self.color.lighter(100+(50 - e)))
+##        if flag:
+##            x, y = y, x
         #print(e)
-        self.scene.addLine(x+self.scene_width//2,self.scene_height//2 - y,\
-                               x+self.scene_width//2, self.scene_height//2 - y, Curr_pen)
+        self.scene.addLine(x+self.scene_width//2, self.scene_height//2 - y,\
+                            x+self.scene_width//2, self.scene_height//2 - y, Curr_pen)
 
     def draw_brez_no_stup_line(self, xn, yn, xk, yk):
-        #print(xk,yk)
+        I = 50
         if(xn == xk and yn == yk):
             self.scene.addLine(xn+self.scene_width//2,self.scene_height//2 - yn,\
                                xn+self.scene_width//2,self.scene_height//2 - yn, self.pen)
             return 0
-        flag = 0
-        if (yk - yn > xk -xn):
-            xn, yn = yn, xn
-            xk, yk = yk, xk
-            flag = 1
-        if (xn > xk):
-            xk, xn = xn, xk
-            yk, yn = yn, yk
-
         dx = xk - xn
         dy = yk - yn
-        if (dx == 0 or dy == 0):
-            self.draw_brez_float_line(xn, yn, xk, yk)
-            return 0
-        gradient = dy / dx
-        y = yn + gradient
-        x = xn
-        while abs(x - xk) > 2 or abs(y - yk) > 2:
-            self.DrawPoint(flag, x, int(y), 1 - (y - int(y)))
-            self.DrawPoint(flag, x, int(y)+1, y - int(y))
-            y += gradient
-            x += 1
+        sx = self.sign(dx)
+        sy = self.sign(dy)
+        dx = abs(dx)
+        dy = abs(dy)
+        flag = 0
+        if (dy > dx):
+            dx, dy = dy, dx
+            flag = 1
+        m = dy / dx
+        e = I / 2
+        xt = xn
+        yt = yn
+        m *= I
+        W = I - m
+        alpha = 50
+        while abs(xt - xk) > 1 or abs(yt - yk) > 1:
+            #print(alpha, e)
+            self.DrawPoint(flag, xt, yt, alpha)
+            alpha = e
+            if (e<=W):
+                if flag:
+                    yt += sy
+                else:
+                    xt += sx
+                e = e+m
+            else:
+                xt += sx
+                yt += sy
+                e = e-W
         
-
     def comp_bible_line(self, xc,yc,angle):
         angle = radians(angle)
         count = 2*pi // angle #сколько линий построится
@@ -213,12 +221,10 @@ class MyWin(QtWidgets.QMainWindow):
                             xc+self.len*cos(angle), yc+self.len*sin(angle))
             angle += dfi
     def comp_cda_line(self, xc,yc,angle):
-        print("here")
         angle = radians(angle)
         count = 2*pi // angle #сколько линий построится
         dfi = 2*pi / count
         while angle < 2*pi+dfi:
-            print(angle)
             self.draw_cda_line(xc,yc,\
                             int(xc+self.len*cos(angle)), int(yc+self.len*sin(angle)))
             angle += dfi
@@ -245,12 +251,11 @@ class MyWin(QtWidgets.QMainWindow):
         angle = radians(angle)
         count = 2*pi // angle #сколько линий построится
         dfi = 2*pi / count
-        print(angle, count, dfi)
         while angle < 2*pi+dfi:
             self.draw_brez_no_stup_line(xc,yc,\
                             xc+self.len*cos(angle), yc+self.len*sin(angle))
             angle += dfi
-            print(angle)
+            
         
     def draw_line(self):
         if self.ui.line_draw_check.isChecked():
