@@ -84,9 +84,9 @@ class Ui_MainWindow(object):
 ##        self.Xc_entry.setObjectName("Xc_entry")
 ##        self.Xc_entry.hide()
         
-        self.Xk_entry = QtWidgets.QLineEdit(self.centralwidget)
-        self.Xk_entry.setGeometry(QtCore.QRect(770, 150, 113, 22))
-        self.Xk_entry.setObjectName("Xk_entry")
+        self.r_entry = QtWidgets.QLineEdit(self.centralwidget)
+        self.r_entry.setGeometry(QtCore.QRect(770, 150, 113, 22))
+        self.r_entry.setObjectName("r_entry")
 
         self.angle_entry = QtWidgets.QLineEdit(self.centralwidget)
         self.angle_entry.setGeometry(QtCore.QRect(770, 150, 113, 22))
@@ -312,7 +312,10 @@ class Ui_MainWindow(object):
         elif self.ellipse_draw_check.isChecked():
             self.b_entry.show()
             self.label_9.show()
-            self.label_9.setText("b:")
             self.label_rad.setText("a:")
             self.label_center.setText("Полуоси")
+            if self.draw_mult_check.isChecked():
+                self.label_9.setText("k:")
+            elif self.draw_one_check.isChecked():
+                self.label_9.setText("b")
 
