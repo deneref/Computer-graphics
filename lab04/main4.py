@@ -36,6 +36,7 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.clear_all_button.clicked.connect(self.Clear_Scene)
         self.ui.choose_color_button.clicked.connect(self.color_choose)
         self.ui.back_color.clicked.connect(self.back_color_set)
+        self.ui.info_button.clicked.connect(self.show_info)
 
     def draw_round_kanonich(self, xc, yc, r):
         x = - r
@@ -367,13 +368,13 @@ class MyWin(QtWidgets.QMainWindow):
             xc = int(self.ui.xc_entry.text())
             yc = int(self.ui.yc_entry.text())
         except:
-            print("what")
+            msge = Message_box().wrong_input()
             return 0
         if self.ui.round_draw_check.isChecked():
             try:
-                r = float(self.ui.r_entry.text())
+                r = int(self.ui.r_entry.text())
             except:
-                print("wrong r")
+                msge = Message_box().wrong_input()
                 return 0
             self.draw_one_round(xc, yc, r)
         if self.ui.ellipse_draw_check.isChecked():
@@ -381,7 +382,7 @@ class MyWin(QtWidgets.QMainWindow):
                 a = int(self.ui.r_entry.text())
                 b = int(self.ui.b_entry.text())
             except:
-                print("wrong a b")
+                msge = Message_box().wrong_input()
                 return 0
             self.draw_one_ellipse(xc, yc, a, b)
 
@@ -391,20 +392,20 @@ class MyWin(QtWidgets.QMainWindow):
             yc = int(self.ui.yc_entry.text())
             k = int(self.ui.b_entry.text())
         except:
-            print("what")
+            msge = Message_box().wrong_input()
             return 0
         if self.ui.round_draw_check.isChecked():
             try:
                 r = float(self.ui.r_entry.text())
             except:
-                print("wrong r")
+                msge = Message_box().wrong_input()
                 return 0
             self.draw_comparison_round(xc, yc, r, k)
         if self.ui.ellipse_draw_check.isChecked():
             try:
                 a = int(self.ui.r_entry.text())
             except:
-                print("wrong a b")
+                msge = Message_box().wrong_input()
                 return 0
             self.draw_comparison_ellipse(xc, yc, a, k)
 
@@ -465,6 +466,10 @@ class MyWin(QtWidgets.QMainWindow):
         self.color = QtGui.QColor(255,255,255)
         self.pen.setColor(self.color)
         self.change_color_check()
+
+    def show_info(self):
+        print("here")
+        msge = Message_box().show_info()
                 
             
 if __name__=="__main__":

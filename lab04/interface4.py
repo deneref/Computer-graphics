@@ -8,7 +8,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -167,6 +166,15 @@ class Ui_MainWindow(object):
         self.groupBox_3.setGeometry(QtCore.QRect(770, 6, 225, 90))
         self.groupBox_3.setObjectName("groupBox")
 
+        self.info_button = QtWidgets.QPushButton(self.centralwidget)
+        #700 560 221 51
+        self.info_button.setGeometry(QtCore.QRect(1070, 10, 40, 40))
+        font = QtGui.QFont()
+        font.setFamily("OCR A Extended")
+        font.setPointSize(12)
+        self.info_button.setFont(font)
+        self.info_button.setObjectName("info_button")
+
 
         #верхние чеки
         self.round_draw_check = QtWidgets.QRadioButton(self.groupBox)
@@ -281,7 +289,7 @@ class Ui_MainWindow(object):
         self.groupBox_3.setTitle(_translate("MainWindow", "Режим"))
         self.round_draw_check.setText(_translate("MainWindow", "Окружность"))
         self.ellipse_draw_check.setText(_translate("MainWindow", "Эллипс"))
-        self.draw_one_check.setText(_translate("MainWindow", "Кастомка"))
+        self.draw_one_check.setText(_translate("MainWindow", "Кастом"))
         self.draw_mult_check.setText(_translate("MainWindow", "Несколько"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Доступные алгоритмы"))
         self.kanonich_check.setText(_translate("MainWindow", "Каноническое уравнение"))
@@ -289,6 +297,7 @@ class Ui_MainWindow(object):
         self.brez_check.setText(_translate("MainWindow", "Брезенхейма"))
         self.sr_toch_check.setText(_translate("MainWindow", "Средней точки"))
         self.bibl_check.setText(_translate("MainWindow", "Библиотечный алгоритм"))
+        self.info_button.setText(_translate("MainWindow", "?"))
 
     def switch_draws(self):
         if self.draw_one_check.isChecked():
@@ -322,3 +331,33 @@ class Ui_MainWindow(object):
             elif self.draw_one_check.isChecked():
                 self.label_9.setText("b")
 
+class Message_box():
+    def __init__(self):
+        self.msg = QtWidgets.QMessageBox()
+        self.msg.setText("wtf")
+        #self.msg.exec_()
+
+    def wrong_input(self):
+        self.msg.setIcon(QtWidgets.QMessageBox.Warning)
+        self.msg.setText("Вы ввели в поля неподходящие значения")
+        self.msg.setInformativeText("Кроме того, не стоит оставлять их пустыми")
+        self.msg.setWindowTitle("Ошибка ввода!")
+        self.msg.setDetailedText("Значения должны быть целыми числами")
+        self.msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self.msg.exec_()
+
+    def show_info(self):
+        self.msg.setIcon(QtWidgets.QMessageBox.Information)
+        self.msg.setText("Программа позволяет построить окружности и эллипсы при помощи различных алгоритмов")
+        self.msg.setInformativeText(("Все вводимые значения должны быть целыми.\n"+\
+                                     "Для того чтобы построить окружность необходим центр и радиус.\n"+\
+                                     "Для эллипса - центр и полуоси.\n"+\
+                                     "Для того, чтобы построить концентрические окружности или эллипсы "+\
+                                     "введите максимальный радиус и желаемое колличество фигур."))
+        self.msg.setWindowTitle("Информация")
+        self.msg.setDetailedText("Программу, кстати, сделал студент ИУ7-44 Мокеев Даниил")
+        self.msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        self.msg.exec_()        
+
+
+   
