@@ -62,8 +62,47 @@ class MyWin(QtWidgets.QMainWindow):
             t+=fi
             
     def draw_round_brez(self, xc, yc, r):
-        print("round brez")
+        x = 0
+        y = r
+        D = 2*(1-r)
+        yk = 0
+        while (y > yk):
+##            print(x, y)
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
 
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+
+            if D < 0:
+                D1=2*D+2*y-1
+                if D1 < 0:
+                    x+=1
+                    D+=2*x+1
+                else:
+                    x+=1
+                    y-=1
+                    D+=2*(x-y+1)
+            elif D == 0:
+                x+=1
+                y-=1
+                D+=2*(x-y+1)
+            elif D > 0:
+                D2 = 2*D-2*x-1
+                if D2<0:
+                    x+=1
+                    y-=1
+                    D+=2*(x-y+1)
+                else:
+                    y-=1
+                    D =D-2*y+1
+        
     def draw_round_bibl(self, xc, yc, r):
         self.scene.addEllipse(xc - r + self.scene_width / 2, yc - r + self.scene_height / 2,\
                               2*r, 2*r, self.pen)
@@ -117,7 +156,15 @@ class MyWin(QtWidgets.QMainWindow):
             y = ellipse[i][1]
             self.scene.addLine(xc+x+self.scene_width//2,self.scene_height//2 - y-yc,\
                                xc+x+self.scene_width//2,self.scene_height//2 - y-yc, self.pen)
-        #ellipse.append([ellipse[0][0], ellipse[0][1]])
+        self.scene.addLine(xc+ellipse[0][0]+self.scene_width//2,\
+                           self.scene_height//2 - ellipse[0][1]-yc,\
+                           xc+(-1)*ellipse[0][0]+self.scene_width//2,\
+                           self.scene_height//2 - ellipse[0][1]-yc, self.pen)
+        
+        self.scene.addLine(xc+ellipse[0][0]+self.scene_width//2,\
+                           self.scene_height//2 + ellipse[0][1]-yc,\
+                           xc+(-1)*ellipse[0][0]+self.scene_width//2,\
+                           self.scene_height//2 + ellipse[0][1]-yc, self.pen)
 
     def draw_ellipse_param(self, xc, yc, a, b):
         fi = 1 / a
@@ -145,7 +192,54 @@ class MyWin(QtWidgets.QMainWindow):
             x+=1
         
     def draw_ellipse_brez(self, xc, yc, a, b):
-        print("round brez")
+        x = 0
+        y = b
+        a_sqr = a**2
+        b_sqr = b**2
+        D = 4*b_sqr * (x+1)**2 + a_sqr*(2*y - 1)**2 - 4*a_sqr*b_sqr
+        yk = 0
+        while (a_sqr * (2*y-1) > 2*b_sqr*(x+1)):
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
+
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+
+            if D < 0:
+                x+=1
+                D+= 4 * b_sqr * (2*x+3)
+
+            elif D >= 0:
+                x+=1
+                D = D - 8*a_sqr*(y-1) + 4 * b_sqr * (2*x+3)
+                y-=1
+        D = b_sqr * (2*x+1)**2 + 4*a_sqr * (y+1)**2 - 4*a_sqr*b_sqr
+        while(y > 0):
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
+
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+
+            self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+
+            self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+            if D<=0:
+                y-=1
+                D += 4*a_sqr*(2*y+3)
+            elif D > 0:
+                y-=1
+                D = D - 8*b_sqr*(x+1)+4*a_sqr*(2*y+3)
+                x+=1
+                
 
     def draw_ellipse_bibl(self, xc, yc, a, b):
         self.scene.addEllipse(xc - a + self.scene_width / 2, yc - b + self.scene_height / 2,\
@@ -191,7 +285,6 @@ class MyWin(QtWidgets.QMainWindow):
         count = a // int(h)
         for i in range(int(count)):
             self.draw_ellipse_kanonich(xc, yc, a, a/2)
-            print(a, k , h, count)
             a -= h
 
     def draw_ellipse_param_comparison(self,xc, yc, a, k):
@@ -199,7 +292,6 @@ class MyWin(QtWidgets.QMainWindow):
         count = a // int(h)
         for i in range(int(count)):
             self.draw_ellipse_param(xc, yc, a, a/2)
-            print(a, k , h, count)
             a -= h
         
     def draw_ellipse_brez_comparison(self,xc, yc, a, k):
@@ -207,7 +299,6 @@ class MyWin(QtWidgets.QMainWindow):
         count = a // int(h)
         for i in range(int(count)):
             self.draw_ellipse_brez(xc, yc, a, a/2)
-            print(a, k , h, count)
             a -= h
 
     def draw_sr_toch_ellipse_comparison(self, xc, yc, a, k):
@@ -222,7 +313,6 @@ class MyWin(QtWidgets.QMainWindow):
         count = a // int(h)
         for i in range(int(count)):
             self.draw_ellipse_bibl(xc, yc, a, a/2)
-            print(a, k , h, count)
             a -= h
 
     def Clear_Scene(self):

@@ -303,6 +303,9 @@ class Ui_MainWindow(object):
             elif self.round_draw_check.isChecked():
                 self.label_center.setText("Радиус")
                 self.label_rad.setText("r:")
+                self.label_9.show()
+                self.label_9.setText("k:")
+                self.b_entry.show()
     def switch_figure(self):
         if self.round_draw_check.isChecked():
             self.b_entry.hide()
