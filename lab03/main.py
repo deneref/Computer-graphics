@@ -59,11 +59,32 @@ class MyWin(QtWidgets.QMainWindow):
 
 
     def draw_coord(self):
+       #оси
         ox = QtCore.QLineF(self.scene_width//2, 0,\
                            self.scene_width//2, self.scene_height)
         self.scene.addLine(ox)
         self.scene.addLine(0, self.scene_height//2,\
                            self.scene_width, self.scene_height//2)
+        #стрелочки
+        self.scene.addLine(self.scene_width//2 , 0,\
+                           self.scene_width//2 + 10, 20)
+        self.scene.addLine(self.scene_width//2 , 0,\
+                           self.scene_width//2 - 10, 20)
+        self.scene.addLine(self.scene_width, self.scene_height//2,\
+                           self.scene_width - 20, self.scene_height//2 - 10)
+        self.scene.addLine(self.scene_width, self.scene_height//2,\
+                           self.scene_width - 20, self.scene_height//2 + 10)
+        font = QtGui.QFont()
+        font.setFamily("OCR A Extended")
+        font.setPointSize(12)
+        self.scene.addText("y", font).setPos(self.scene_width//2 - 30, 0)
+        self.scene.addText("x", font).setPos(self.scene_width - 30, self.scene_height//2 + 10)
+        for i in range(0, self.scene_width, 50):
+            self.scene.addLine(i, self.scene_height//2 - 7,
+                               i, self.scene_height//2 + 7)
+        for i in range(50, self.scene_height+50, 50):
+            self.scene.addLine(self.scene_width//2 - 7, i,
+                               self.scene_width//2 + 7, i)
 
     def draw_bible_line(self, xn, yn, xk, yk):
         self.scene.addLine(xn+self.scene_width//2, self.scene_height//2 - yn,\
