@@ -1,16 +1,17 @@
 ﻿def read_points(file_name):
     curr_x = 0; curr_y = 0;
-    x= [];y=[];
+    x = [];y =[];
     try:
         with open(file_name, 'r') as f:
             buff = f.readlines();
             for i in range(len(buff)):
-                    try:
-                        curr_x, curr_y = map(float, buff[i].split());
-                        x.append(curr_x);
-                        y.append(curr_y);
-                    except ValueError:
-                        print('Could not read all the given points');
+                try:
+                    curr_x, curr_y = map(float, buff[i].split());
+                    x.append(curr_x);
+                    y.append(curr_y);
+                except ValueError:
+                    print(curr_x, curr_y)
+                    print('Could not read all the given points');
     except:
         return [], []
 

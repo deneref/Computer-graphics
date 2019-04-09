@@ -36,9 +36,9 @@ class triangle():
                     self.real_width = 2*abs(self.x[i]) + abs(self.x[i])//10
                     points_label_text.set('')
                     len_of_points_label = 0
-                elif abs(y[i]) > self.real_width//2:
-                    self.real_width = 2*abs(y[i]) + abs(y[i])//10
-                    self.real_width = 2*abs(y[i]) + abs(y[i])//10
+                elif abs(self.y[i]) > self.real_width//2:
+                    self.real_width = 2*abs(self.y[i]) + abs(self.y[i])//10
+                    self.real_width = 2*abs(self.y[i]) + abs(self.y[i])//10
                     points_label_text.set('')
                     len_of_points_label = 0
                 c.delete('all')
@@ -114,6 +114,20 @@ class triangle():
         #они рисуются прямо перед мейнлупом
         c.create_line(0, self.canvas_height//2, self.canvas_width, self.canvas_height//2)
         c.create_line(self.canvas_width//2, 0, self.canvas_width//2, self.canvas_height)
+        c.create_line(self.canvas_width//2 , 0,\
+                      self.canvas_width//2 + 10, 20)
+        c.create_line(self.canvas_width//2 , 0,\
+                      self.canvas_width//2- 10, 20)
+        c.create_line(self.canvas_width - 20, self.canvas_height//2 + 10,\
+                      self.canvas_width, self.canvas_height//2 )
+        c.create_line(self.canvas_width - 20, self.canvas_height//2 - 10,\
+                      self.canvas_width, self.canvas_height//2)
+        for i in range(0, self.canvas_width, 50):
+            c.create_line(i, self.canvas_height//2 - 7,
+                               i, self.canvas_height//2 + 7)
+        for i in range(50, self.canvas_height+50, 50):
+            c.create_line(self.canvas_width//2 - 7, i,
+                               self.canvas_width//2 + 7, i)
 
 
     def add_point(self, x_new, y_new):
@@ -140,7 +154,6 @@ def enter_file_press():
             #читаем в новый массик, потом добавляем к уже имеющимся
     x_new, y_new = read_points(file_name)
     if(x_new == [] or y_new == []):
-
         messagebox.showerror("Ошибка ввода",\
                                      "Такого файла нет.\nНе получилось считать точки")
         return 0 
