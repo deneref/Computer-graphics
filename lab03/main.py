@@ -104,11 +104,12 @@ class MyWin(QtWidgets.QMainWindow):
 
             dx = (xk - xn)/length
             dy = (yk - yn)/length
+            #print(dx, dy)
             x = xn; y = xn
             #изменить
             while abs(x - xk) > 1 or abs(y - yk) > 1:
-                self.scene.addLine(int(x+self.scene_width//2),int(self.scene_height//2 - y),\
-                               int(x+self.scene_width//2),int(self.scene_height//2 - y), self.pen)
+                self.scene.addLine(x+self.scene_width//2,self.scene_height//2 - y,\
+                               x+self.scene_width//2, self.scene_height//2 - y, self.pen)
                 x += dx
                 y += dy
 
