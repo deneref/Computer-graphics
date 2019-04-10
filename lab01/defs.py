@@ -38,14 +38,10 @@ def find_centre_of_mediane_cross(x1_1, y1_1, x1_2, y1_2, x2_1, y2_1, x2_2, y2_2)
             Py = (C2*A1 - C1*A2) / (B1*A2 - B2*A1)
             Px = (-C1 - B1*Py) / A1
         except ZeroDivisionError:
-            #print ("!");
             pass
     try:
-        #plt.scatter(Px, Py, color = 'blue');
         return Px, Py
     except:
-        #plt.scatter(x1_1, y1_1, color = 'red');
-        #plt.scatter(x1_2, y1_2, color = 'red');
         return 1, 1
         
 
@@ -87,8 +83,7 @@ def prosses(x, y):
                     #Px, Py - точка пересечения медиан
                     Px, Py = find_centre_of_mediane_cross(\
                         x_m_ij, y_m_ij, x[k], y[k], x_m_ik, y_m_ik, x[j], y[j]);
-
-
+                    #print(Px, Py)
                     #перебор всех точек попадают ли они в каждый из 6-ти треугольников
                     for t in range(len(x)):
                         if is_in_triangle(x[i], y[i], Px, Py, x[j], y[j], x[t], y[t]):
@@ -118,8 +113,6 @@ def prosses(x, y):
                         med_1[0], med_1[1] = x_m_jk, y_m_jk
                         med_2[0], med_2[1] = x_m_ik, y_m_ik
                         med_3[0], med_3[1] = x_m_ij, y_m_ij
-
-                    #print(points_in_triangle)
                     
                     for r in range(len(points_in_triangle)):
                         points_in_triangle[r] = 0

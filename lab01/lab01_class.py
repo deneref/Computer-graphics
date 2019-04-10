@@ -75,7 +75,7 @@ class triangle():
     ##  2 - медиана против первой вершины
     ##  3 - медиана против второй
     ##  4 - медиана против четвертой
-        
+        print(self.result)
         k = self.canvas_width/self.real_width
         #добавляем в конец первую точку чтобы треуг замкнулся
         result_x = self.result[0]
@@ -94,10 +94,14 @@ class triangle():
                               k *(self.real_width - result_y[i]) - self.canvas_height//2,\
                               k*(result[i+2][0])+ self.canvas_width//2,\
                               k*(self.real_width - result[i+2][1])- self.canvas_height//2), dash = (4,2))
-
-        messagebox.showinfo("Результат",\
+            
+        if (result_x[0] + result_y[0] + result_x[1] + result_y[1] + result_x[2] + result_y[2] == 0):
+            messagebox.showinfo("Результат",\
+                                "На данных точках нельзя построить такого треугольника, чтобы в него попала хоть одна другая")
+        else:
+            messagebox.showinfo("Результат",\
                                "На данном множестве точек в треугольнике\nс вершинами [{} {}],[{} {}],[{} {}] разница количества точек,\n попавших в каждый из шести треугольников\nобразованных медианами максимальна".\
-                               format(int(result_x[0]), int(result_y[0]), int(result_x[1]), int(result_y[1]), int(result_x[2]), int(result_y[2])))
+                               format(result_x[0], result_y[0], result_x[1], result_y[1], result_x[2], result_y[2]))
 
     def input_point(self):
         c.delete('all')
@@ -163,8 +167,8 @@ def enter_file_press():
 
 def input_point_press():
     try:
-        x0 = int(x_entry.get())
-        y0 = int(y_entry.get())
+        x0 = float(x_entry.get())
+        y0 = float(y_entry.get())
     except:
         messagebox.showerror("Ошибка ввода",\
                              "Точка должна иметь\nцелочисленные координаты")
@@ -187,7 +191,7 @@ def leave_canvas(event):
     label_coords['text'] = '(-/-)'
 
 def plot_button_press():
-    if len(points.x) >= 4:
+    if len(points.x) >= 3:
         points.result = prosses(points.x, points.y)
         points.print_result_triangle(points.result)
     
