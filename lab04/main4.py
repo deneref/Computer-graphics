@@ -47,11 +47,11 @@ class MyWin(QtWidgets.QMainWindow):
             self.scene.addLine(x+self.scene_width//2 + xc,\
                                self.scene_height//2 + y - yc,
                                x+self.scene_width//2+xc,\
-                               self.scene_height//2 + sqrt(r**2 - (x+1)**2) - yc)
+                               self.scene_height//2 + sqrt(r**2 - (x+1)**2) - yc, self.pen)
             self.scene.addLine(x+self.scene_width//2+xc,\
                                self.scene_height//2 - y - yc,
                                x+self.scene_width//2+xc,\
-                               self.scene_height//2 - sqrt(r**2 - (x+1)**2) - yc)
+                               self.scene_height//2 - sqrt(r**2 - (x+1)**2) - yc,self.pen)
             x+=1
 
     def draw_round_param(self, xc, yc, r):
@@ -59,7 +59,7 @@ class MyWin(QtWidgets.QMainWindow):
         t = fi
         while t < 2*pi:
             self.scene.addLine(xc + r*cos(t)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t),
-                               xc + r*cos(t+fi)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t+fi))
+                               xc + r*cos(t+fi)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t+fi), self.pen)
             t+=fi
             
     def draw_round_brez(self, xc, yc, r):
@@ -70,16 +70,16 @@ class MyWin(QtWidgets.QMainWindow):
         while (y > yk):
 ##            print(x, y)
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y, self.pen)
 
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y, self.pen)
 
             if D < 0:
                 D1=2*D+2*y-1
@@ -172,24 +172,22 @@ class MyWin(QtWidgets.QMainWindow):
         t = fi
         while t < 2*pi:
             self.scene.addLine(xc + a*cos(t)+self.scene_width//2, self.scene_height//2 + yc - b*sin(t),
-                               xc + a*cos(t+fi)+self.scene_width//2, self.scene_height//2 + yc - b*sin(t+fi))
+                               xc + a*cos(t+fi)+self.scene_width//2, self.scene_height//2 + yc - b*sin(t+fi),self.pen)
             t+=fi
 
     def draw_ellipse_kanonich(self, xc, yc, a, b):
-        print("here")
         x = -a
         y = 0
         while x < a:
-            print(x, y)
             y = sqrt((1 - x**2/a**2) / b**2)
             self.scene.addLine(x+self.scene_width//2 + xc,\
                                self.scene_height//2 + y - yc,
                                x+self.scene_width//2+xc,\
-                               self.scene_height//2 + sqrt(1 - ((x+1)**2/a**2)/b**2) - yc)
+                               self.scene_height//2 + sqrt(1 - ((x+1)**2/a**2)/b**2) - yc, self.pen)
             self.scene.addLine(x+self.scene_width//2+xc,\
                                self.scene_height//2 - y - yc,
                                x+self.scene_width//2+xc,\
-                               self.scene_height//2 - sqrt(1 - ((x+1)**2/a**2)/b**2) - yc)
+                               self.scene_height//2 - sqrt(1 - ((x+1)**2/a**2)/b**2) - yc, self.pen)
             x+=1
         
     def draw_ellipse_brez(self, xc, yc, a, b):
@@ -201,16 +199,16 @@ class MyWin(QtWidgets.QMainWindow):
         yk = 0
         while (a_sqr * (2*y-1) > 2*b_sqr*(x+1)):
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y, self.pen)
 
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y,self.pen)
 
             if D < 0:
                 x+=1
@@ -223,16 +221,16 @@ class MyWin(QtWidgets.QMainWindow):
         D = b_sqr * (2*x+1)**2 + 4*a_sqr * (y+1)**2 - 4*a_sqr*b_sqr
         while(y > 0):
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc - y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc - y, self.pen)
 
             self.scene.addLine(xc - x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc - x+self.scene_width//2, self.scene_height//2 - yc + y, self.pen)
 
             self.scene.addLine(xc + x +self.scene_width//2, self.scene_height//2 - yc + y,
-                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y)
+                               xc + x+self.scene_width//2, self.scene_height//2 - yc + y, self.pen)
             if D<=0:
                 y-=1
                 D += 4*a_sqr*(2*y+3)
