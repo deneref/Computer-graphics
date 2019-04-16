@@ -59,7 +59,7 @@ class MyWin(QtWidgets.QMainWindow):
         t = fi
         while t < 2*pi:
             self.scene.addLine(xc + r*cos(t)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t),
-                               xc + r*cos(t+fi)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t+fi), self.pen)
+                               xc + r*cos(t)+self.scene_width//2, self.scene_height//2 + yc - r*sin(t), self.pen)
             t+=fi
             
     def draw_round_brez(self, xc, yc, r):
