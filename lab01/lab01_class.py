@@ -31,12 +31,12 @@ class triangle():
             #и строим все точки по новой
             if abs(self.x[i]) >= self.real_width//2  + 1 \
                or abs(self.y[i]) >= self.real_width//2 + 1:
-                if abs(self.x[i]) >= self.real_width//2:
+                if abs(self.x[i]) >= abs(self.y[i]):
                     self.real_width = 2*abs(self.x[i]) + abs(self.x[i])//10 
                     self.real_width = 2*abs(self.x[i]) + abs(self.x[i])//10
                     points_label_text.set('')
                     len_of_points_label = 0
-                elif abs(self.y[i]) > self.real_width//2:
+                else:
                     self.real_width = 2*abs(self.y[i]) + abs(self.y[i])//10
                     self.real_width = 2*abs(self.y[i]) + abs(self.y[i])//10
                     points_label_text.set('')
@@ -97,7 +97,7 @@ class triangle():
             
         if (result_x[0] + result_y[0] + result_x[1] + result_y[1] + result_x[2] + result_y[2] == 0):
             messagebox.showinfo("Результат",\
-                                "На данных точках нельзя построить такого треугольника, чтобы в него попала хоть одна другая")
+                                "На данных точках нельзя построить треугольника")
         else:
             messagebox.showinfo("Результат",\
                                "На данном множестве точек в треугольнике\nс вершинами [{} {}],[{} {}],[{} {}] разница количества точек,\n попавших в каждый из шести треугольников\nобразованных медианами максимальна".\

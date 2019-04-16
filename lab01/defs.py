@@ -117,6 +117,26 @@ def prosses(x, y):
                     for r in range(len(points_in_triangle)):
                         points_in_triangle[r] = 0
                         
+    triangle_not_found = True
+    i = 0
+    if (result_x[0] + result_x[1] + result_x[2] + result_y[0] + result_y[1] + \
+        result_y[2] == 0):
+        while (triangle_not_found):
+            if i+2 < len(x):
+                if (triangle_exists(x[i], y[i], x[i+1], y[i+1], x[i+2], y[i+2])):
+                    result_x[0], result_y[0] = x[i], y[i]
+                    result_x[1], result_y[1] = x[i+1], y[i+1]
+                    result_x[2], result_y[2] = x[i+2], y[i+2]
+
+                    med_1[0], med_1[1] = (x[i+1]+x[i+2])/2, (y[i+1]+y[i+2])/2
+                    med_2[0], med_2[1] = (x[i]+x[i+2])/2, (y[i]+y[i+2])/2
+                    med_3[0], med_3[1] = (x[i]+x[i+2])/2, (y[i]+y[i+2])/2
+                    triangle_not_found = False
+                else:
+                    i+=1
+            else:
+                triangle_not_found = False
+                
     result.append(result_x)
     result.append(result_y)
     result.append(med_1)
