@@ -189,9 +189,10 @@ class MyWin(QtWidgets.QMainWindow):
             e = e + 2*dy
 
     def DrawPoint(self, flag, x, y, e):
-        Curr_pen = QtGui.QPen(self.color.lighter(100+(50 - e)))
-##        if flag:
-##            x, y = y, x
+##        Curr_pen = QtGui.QPen(self.color.lighter(100+(50 - e)))
+##        self.color.setAlpha(e)
+        curr_color = self.color
+        Curr_pen = QtGui.QPen(curr_color.setAlphaF(int(e)))
         #print(e)
         self.scene.addLine(x+self.scene_width//2, self.scene_height//2 - y,\
                             x+self.scene_width//2, self.scene_height//2 - y, Curr_pen)
@@ -220,7 +221,7 @@ class MyWin(QtWidgets.QMainWindow):
         W = I - m
         alpha = 50
         while abs(xt - xk) > 1 or abs(yt - yk) > 1:
-            #print(alpha, e)
+            print(alpha, e)
             self.DrawPoint(flag, xt, yt, alpha)
             alpha = e
             if (e<=W):
