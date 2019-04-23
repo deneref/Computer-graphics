@@ -42,7 +42,7 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.line_draw_check.toggle()
 
         #длина лучей солнца
-        self.len = 100
+        self.len = 200
 
     def Clear_Scene(self):
         self.scene.clear()
