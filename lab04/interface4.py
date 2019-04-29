@@ -289,7 +289,7 @@ class Ui_MainWindow(object):
         self.groupBox_3.setTitle(_translate("MainWindow", "Режим"))
         self.round_draw_check.setText(_translate("MainWindow", "Окружность"))
         self.ellipse_draw_check.setText(_translate("MainWindow", "Эллипс"))
-        self.draw_one_check.setText(_translate("MainWindow", "Кастом"))
+        self.draw_one_check.setText(_translate("MainWindow", "Одна фигура"))
         self.draw_mult_check.setText(_translate("MainWindow", "Несколько"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Доступные алгоритмы"))
         self.kanonich_check.setText(_translate("MainWindow", "Каноническое уравнение"))
