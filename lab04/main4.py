@@ -39,30 +39,45 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.info_button.clicked.connect(self.show_info)
 
     def draw_round_kanonich(self, xc, yc, r):
-        x = - r
-        y = 0
-        while x < r:
-            #print(x, r, y)
-            y = sqrt(abs(r**2 - x**2))
-            self.scene.addLine(x, y, x, y, self.pen)
-            
-            self.scene.addLine(x, -y, x, -y, self.pen)
+        #print(r, xc, yc)
+        x = 0
+        y = r
+        while x < r+1:
+##            print(x, r, y)
+            y = int(sqrt(abs(r ** 2 - x ** 2)))
+            self.scene.addLine(xc+x, yc+y, xc+x, yc+y, self.pen)
+            self.scene.addLine(xc+x, yc-y, xc+x, yc-y, self.pen)
+            self.scene.addLine(xc-x, yc+y, xc-x, yc+y, self.pen)
+            self.scene.addLine(xc-x, yc-y, xc-x, yc-y, self.pen)
             x+=1
+            
+        for y in range(0, r+1,1):
+            x = int(sqrt(abs(r ** 2 - y ** 2)))
+            self.scene.addLine(xc+x, yc+y, xc+x, yc+y, self.pen)
+            self.scene.addLine(xc+x, yc-y, xc+x, yc-y, self.pen)
+            self.scene.addLine(xc-x, yc+y, xc-x, yc+y, self.pen)
+            self.scene.addLine(xc-x, yc-y, xc-x, yc-y, self.pen)
 
     def draw_round_param(self, xc, yc, r):
-        fi = 1 / r
-        t = fi
-        while t < 2*pi:
-            self.scene.addLine(xc + r*cos(t), yc - r*sin(t),
-                               xc + r*cos(t), yc - r*sin(t), self.pen)
-            t+=fi
+        l = int(pi * r / 2)
+        for i in range(0, l+1, 1):
+            x = int(r * cos(i / r))
+            y = int(r * sin(i / r))
+            self.scene.addLine(xc + x, yc + y,
+                               xc + x, yc + y, self.pen)
+            self.scene.addLine(xc - x, yc + y,
+                               xc - x, yc + y, self.pen)
+            self.scene.addLine(xc + x, yc - y,
+                               xc + x, yc - y, self.pen)
+            self.scene.addLine(xc - x, yc - y,
+                               xc - x, yc - y, self.pen)
+            
             
     def draw_round_brez(self, xc, yc, r):
         x = 0
         y = r
         D = 2*(1-r)
-        yk = 0
-        while (y > yk):
+        while (y >= 0):
             self.scene.addLine(xc + x, yc - y,
                                xc + x, yc - y, self.pen)
 
@@ -77,26 +92,26 @@ class MyWin(QtWidgets.QMainWindow):
 
             if D < 0:
                 D1=2*D+2*y-1
-                if D1 < 0:
-                    x+=1
+                x+=1
+                
+                if D1 <= 0: #горизонт
+##                    x+=1
                     D+=2*x+1
-                else:
-                    x+=1
+                else:  #диагонал
                     y-=1
                     D+=2*(x-y+1)
-            elif D == 0:
+            elif D == 0: #на окружности
                 x+=1
                 y-=1
                 D+=2*(x-y+1)
             elif D > 0:
                 D2 = 2*D-2*x-1
+                y-=1
                 if D2<0:
                     x+=1
-                    y-=1
                     D+=2*(x-y+1)
                 else:
-                    y-=1
-                    D =D-2*y+1
+                    D=D-2*y+1
         
     def draw_round_bibl(self, xc, yc, r):
         self.scene.addEllipse(xc - r, yc - r,\
@@ -162,84 +177,93 @@ class MyWin(QtWidgets.QMainWindow):
                             ellipse[0][1]+yc, self.pen)
 
     def draw_ellipse_param(self, xc, yc, a, b):
-        fi = 1 / a
-        t = fi
-        while t < 2*pi:
-            self.scene.addLine(xc + a*cos(t) ,   +yc - int(b*sin(t)),
-                               xc + a*cos(t+fi) ,   +yc - int(b*sin(t+fi)),self.pen)
-            t+=fi
-
-    def draw_ellipse_kanonich(self, xc, yc, a, b):
-        x = -a
-        y = 0
-        while x < a:
-            y = sqrt((1 - x**2/a**2) * b**2)
-            self.scene.addLine(x  + xc,\
-                               y + yc,
-                               x +xc,\
-                               y + yc, self.pen)
-            self.scene.addLine(x +xc,\
-                               y + yc,
-                               x +xc,\
-                               y + yc, self.pen)
-            self.scene.addLine(-x  + xc,\
-                               y + yc,
-                               -x +xc,\
-                               y + yc, self.pen)
-            self.scene.addLine(-x +xc,\
-                               -y + yc,
-                               -x +xc,\
-                               -y + yc, self.pen)            
-            x+=1
-        
-    def draw_ellipse_brez(self, xc, yc, a, b):
-        x = 0
-        y = b
-        a_sqr = a**2
-        b_sqr = b**2
-        D = 4*b_sqr * (x+1)**2 + a_sqr*(2*y - 1)**2 - 4*a_sqr*b_sqr
-        yk = 0
-        while (a_sqr * (2*y-1) > 2*b_sqr*(x+1)):
-            self.scene.addLine(xc + x, yc + y,
-                               xc + x, yc + y, self.pen)
-
-            self.scene.addLine(xc - x, yc + y,
-                               xc - x, yc + y, self.pen)
-
-            self.scene.addLine(xc - x, yc - y,
-                               xc - x, yc - y, self.pen)
-
-            self.scene.addLine(xc + x, yc - y,
-                               xc + x, yc - y,self.pen)
-
-            if D < 0:
-                x+=1
-                D+= 4 * b_sqr * (2*x+3)
-
-            elif D >= 0:
-                x+=1
-                D = D - 8*a_sqr*(y-1) + 4 * b_sqr * (2*x+3)
-                y-=1
-        D = b_sqr * (2*x+1)**2 + 4*a_sqr * (y+1)**2 - 4*a_sqr*b_sqr
-        while(y > 0):
-            self.scene.addLine(xc + x, yc + y,
-                               xc + x, yc + y, self.pen)
-
-            self.scene.addLine(xc - x, yc + y,
-                               xc - x, yc + y, self.pen)
-
-            self.scene.addLine(xc - x, yc - y,
-                               xc - x, yc - y, self.pen)
-
+        m = max(a, b)
+        l = int(pi * m / 2)
+        for i in range(0, l+1, 1):
+            x = int(a * cos(i / m))
+            y = int(b * sin(i / m))
             self.scene.addLine(xc + x, yc - y,
                                xc + x, yc - y, self.pen)
-            if D<=0:
-                y-=1
-                D += 4*a_sqr*(2*y+3)
-            elif D > 0:
-                y-=1
-                D = D - 8*b_sqr*(x+1)+4*a_sqr*(2*y+3)
-                x+=1
+
+            self.scene.addLine(xc - x, yc - y,
+                               xc - x, yc - y, self.pen)
+
+            self.scene.addLine(xc - x, yc + y,
+                               xc - x, yc + y, self.pen)
+
+            self.scene.addLine(xc + x, yc + y,
+                               xc + x, yc + y, self.pen)  
+
+    def draw_ellipse_kanonich(self, xc, yc, a, b):
+        for x in range(0, a+1, 1):
+            y = int(b * sqrt((1 - x**2/a**2)))
+            self.scene.addLine(xc + x, yc - y,
+                               xc + x, yc - y, self.pen)
+
+            self.scene.addLine(xc - x, yc - y,
+                               xc - x, yc - y, self.pen)
+
+            self.scene.addLine(xc - x, yc + y,
+                               xc - x, yc + y, self.pen)
+
+            self.scene.addLine(xc + x, yc + y,
+                               xc + x, yc + y, self.pen)         
+##        for y in range(0, b+1, 1):
+##            x = int(a * sqrt(1 - y ** 2 / b ** 2))
+##            self.scene.addLine(xc + x, yc - y,
+##                               xc + x, yc - y, self.pen)
+##
+##            self.scene.addLine(xc - x, yc - y,
+##                               xc - x, yc - y, self.pen)
+##
+##            self.scene.addLine(xc - x, yc + y,
+##                               xc - x, yc + y, self.pen)
+##
+##            self.scene.addLine(xc + x, yc + y,
+##                               xc + x, yc + y, self.pen)
+        
+    def draw_ellipse_brez(self, xc, yc, a, b):
+        rx2 = a**2
+        ry2 = b**2
+        r2y2 = 2 * ry2
+        r2x2 = 2 * rx2
+        x = 0
+        y = b
+        d = rx2 + ry2 - r2x2 * y
+        while y>=0:
+            self.scene.addLine(xc + x, yc - y,
+                               xc + x, yc - y, self.pen)
+
+            self.scene.addLine(xc - x, yc - y,
+                               xc - x, yc - y, self.pen)
+
+            self.scene.addLine(xc - x, yc + y,
+                               xc - x, yc + y, self.pen)
+
+            self.scene.addLine(xc + x, yc + y,
+                               xc + x, yc + y, self.pen)
+            if (d<0):
+                d1 = 2*d + r2x2*y - 1
+                if d1 >0 :
+                    y -= 1
+                    x += 1
+                    d += r2y2 * x + ry2 + rx2 - r2x2*y
+                else:
+                    x+=1
+                    d+=r2y2*x+ry2
+            elif d == 0:
+                x += 1
+                y -=1
+                d += r2y2*x+ry2+rx2 - r2x2*y
+            else:
+                d2 = 2*d - r2y2 * x - 1
+                if (d2 < 0):
+                    y -= 1
+                    x += 1
+                    d += r2y2*x+ry2+rx2 - r2x2*y
+                else:
+                    y-=1
+                    d += rx2 - r2x2*y
                 
 
     def draw_ellipse_bibl(self, xc, yc, a, b):
@@ -330,19 +354,20 @@ class MyWin(QtWidgets.QMainWindow):
         self.pen.setWidth(1)
 
     def draw_coord(self):
-##        for i in range(20, self.scene_width, 20):
-##            if i % 100 == 0:
-##                self.scene.addLine(i, 0, i, 20)
-##            else:
-##                self.scene.addLine(i, 0,
-##                                   i, 10)
-##        for i in range(-20, self.scene_height, 20):
-##            if i % 100 == 0:
-##                self.scene.addLine(0, i, 20, i)
-##            else:
-##                self.scene.addLine(0, i,
-##                                   10, i)
-        pass
+        self.scene.addLine(0, 0,\
+                           self.scene_width, 0)
+        self.scene.addLine(0, 0,\
+                           0, self.scene_height)
+        
+        self.scene.addLine(10 , self.scene_height - 20,\
+                           0, self.scene_height)
+        self.scene.addLine(-10 , self.scene_height - 20,\
+                           0, self.scene_height)
+        
+        self.scene.addLine(self.scene_width, 0,\
+                           self.scene_width - 20, 0 - 10)
+        self.scene.addLine(self.scene_width, 0,\
+                           self.scene_width - 20, 0 + 10)
         
     def draw(self):
         if self.ui.draw_one_check.isChecked():
