@@ -32,6 +32,12 @@ class MyWin(QtWidgets.QMainWindow):
         self.pen_inside = QtGui.QPen(self.color_inside)
         self.rect = QtCore.QRectF(QtCore.QPointF(10, 10), QtCore.QSizeF(30, 30))
 
+        self.painter_bord = QtGui.QPainter()
+        self.painter_bord.setPen(self.pen_bord)
+
+        self.painter_inside = QtGui.QPainter()
+        self.painter_inside.setPen(self.pen_inside)
+
         #проверка цвета
         self.color_check_border = QtWidgets.QGraphicsScene()
         self.ui.c_col_border.setScene(self.color_check_border)
@@ -43,9 +49,11 @@ class MyWin(QtWidgets.QMainWindow):
         #устанавливает сцену
         self.scene = myScene(self)
         self.ui.c.setScene(self.scene)
-        self.image = QtGui.QImage(561, 581, QtGui.QImage.Format_ARGB32_Premultiplied)
-        self.image.fill(QtGui.QColor(200,200,215,255))
-        self.scene.addItem(self.image)
+        self.image = QtGui.QImage(self.scene_width, self.scene_height, QtGui.QImage.Format_ARGB32_Premultiplied)
+        self.image.fill(QtGui.QColor(205,205,255,255))
+##        self.item = .QGraphicsItem.QGraphicsPixmapItem(QPixmap.fromImage(self.image))
+##        self.scene.addItem(self.item)
+        self.scene.addPixmap(QtGui.QPixmap.fromImage(self.image))
      
         # Здесь прописываем событие нажатия на кнопку                     
         self.ui.add_point.clicked.connect(self.add_point_bttn)
@@ -98,12 +106,12 @@ class MyWin(QtWidgets.QMainWindow):
         self.scene.clear()
         self.draw_coord()
         for i in range(len(self.points)-1):
-            self.scene.addLine(self.points[i][0], self.points[i][1],
-                               self.points[i+1][0], self.points[i+1][1], self.pen_bord)
-        if self.ui.connect_check.isChecked():
-            self.scene.addLine(self.points[-1][0], self.points[-1][1],
-                               self.points[0][0], self.points[0][1], self.pen_bord)
-        
+            self.painter_bord.drawLine(self.points[i][0], self.points[i][1],
+                               self.points[i+1][0], self.points[i+1][1])
+##        if self.ui.connect_check.isChecked():
+##            self.scene.addLine(self.points[-1][0], self.points[-1][1],
+##                               self.points[0][0], self.points[0][1], self.pen_bord)
+        self.scene.addPixmap(QtGui.QPixmap.fromImage(self.image))
 
     def print_to_list(self):
         self.ui.list_point.clear()
@@ -158,7 +166,9 @@ class MyWin(QtWidgets.QMainWindow):
             while x < xmax:
                 #print(x)
                 curr_col = QtGui.QColor(self.image.pixelColor(x,y))
-                if curr_col == self.color_bord:
+                print(curr_col.name())
+                if curr_col != QtGui.QColor(255,255,255,255):
+                    print(x, y)
                     cross.append(x, y)
                 x+=1
             y+=1
