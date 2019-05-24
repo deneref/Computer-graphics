@@ -3,6 +3,7 @@ from lab06_ui import *
 from PyQt5 import *
 from math import *
 from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QPixmap
 import time
 
 class myScene(QtWidgets.QGraphicsScene):
@@ -51,11 +52,14 @@ class MyWin(QtWidgets.QMainWindow):
         
         #устанавливает сцену
         self.scene = myScene(self)
-        self.ui.c.setScene(self.scene)
-        self.image = QtGui.QImage(self.scene_width, self.scene_height, QtGui.QImage.Format_ARGB32_Premultiplied)
+        
+        self.image = QtGui.QImage(self.scene_width, self.scene_height, QtGui.QImage.Format_RGB32)
         self.image.fill(self.bg_color)
+        self.scene.addPixmap(QPixmap.fromImage(self.image))
 
-        self.show_image()
+        self.ui.c.setStyleSheet("background-color: white")
+        self.ui.c.setScene(self.scene)
+
 ##        self.scene = QtWidgets.QGraphicsScene(self)
 ##        self.image = QtGui.QImage(self.scene_width,self.scene_height,QtGui.QImage.Format_RGB32)
 ##        self.image.fill(self.bg_color)
@@ -94,11 +98,11 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.list_point.clear()
         self.new = True
         self.last_point = 0
+
+    def paintEvent(self, e):
+        self.scene.clear()
+        self.scene.addPixmap(QPixmap.fromImage(self.image))
         
-    def show_image(self):
-        self.pixmap = QtGui.QPixmap.fromImage(self.image)
-        pixItem = QtWidgets.QGraphicsPixmapItem(self.pixmap)
-        PixItem = self.scene.addItem(pixItem)
 
     def zamkn(self):
         self.add_point(self.edges[self.last_point][0], self.edges[self.last_point][1])
@@ -164,7 +168,6 @@ class MyWin(QtWidgets.QMainWindow):
 ##            self.draw_brez_line(self.edges[i][0], self.edges[i][1],
 ##                                self.edges[i+1][0], self.edges[i+1][1])
         p.end()
-        self.show_image()
 
     def get_pos_to_delete(self):
         try:
@@ -188,11 +191,8 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.timer_entry.hide()
 
     def go_delay(self):
-##        self.show_image()
-##        time.sleep(0.005)
         self.update()
         self.repaint()
-        #self.show_image()
 
     def fill(self):
         pix = QtGui.QPixmap()
@@ -213,6 +213,10 @@ class MyWin(QtWidgets.QMainWindow):
             while self.image.pixel(x,y) != self.color_bord.rgb():
                 self.image.setPixel(x,y,self.color_inside.rgb())
                 x-=1
+
+            if self.ui.with_stop.isChecked:
+                self.go_delay()
+            
             #сохраняет крайний слева пиксель
             xl = x+1
             x = tx
@@ -271,13 +275,7 @@ class MyWin(QtWidgets.QMainWindow):
                     x+=1
                 if x == xt:
                     x += 1
-            if self.ui.with_stop.isChecked():
-                self.go_delay()
-            else:
-                self.show_image()
                 
-        self.show_image()
-
         
     def color_choose_border(self):
         self.color_bord = QtWidgets.QColorDialog.getColor()
@@ -302,7 +300,6 @@ class MyWin(QtWidgets.QMainWindow):
 
         p.drawLine(self.scene_width, 0,\
                            self.scene_width - 20, 0 + 10)
-        self.show_image()
         p.end()
 
     def change_color_check(self):
@@ -313,15 +310,6 @@ class MyWin(QtWidgets.QMainWindow):
         pixmap = QtGui.QPixmap(40,40)
         pixmap.fill(self.color_inside)
         self.color_check_inside.addPixmap(pixmap)
-
-##    def mousePressEvent(self, QMouseEvent):
-##        coord = QMouseEvent.pos()
-##        y = coord.y()
-##        x = coord.x()
-##        if (x >= 15 and y >= 15 and y <= self.scene_height and x <= self.scene_width):
-##            x-=15
-##            y-=15
-##        self.add_point(x,y)
 
     def sign(self, x):
         if x > 0:
