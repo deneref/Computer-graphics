@@ -3,6 +3,7 @@ from lab07_ui import *
 from PyQt5 import *
 from math import *
 from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QPixmap
 import time
 
 class myScene(QtWidgets.QGraphicsScene):
@@ -10,23 +11,42 @@ class myScene(QtWidgets.QGraphicsScene):
         QtWidgets.QGraphicsScene.__init__(self, parent)
         self.parent = parent
         
-    def mousePressEvent(self, event):
-        x = event.scenePos().x()
-        y = event.scenePos().y()
-        if self.parent.ui.lines_draw.isChecked():
-            self.parent.add_point(x, y)
-        elif self.parent.ui.cutter.isChecked():
-            self.parent.draw_cutter(x,y)
-        self.parent.scene.update()
-##    def mouseMoveEvent(self, event):
-##        if myapp.ui.cutter.isChecked() and not myapp.new:
-##            x = event.scenePos().x()
-##            y = event.scenePos().y()
-##            print(x,y)
-##            myapp.draw_cutter(x,y)
-##            myapp.scene.update()
-##            myapp.repaint()
-##            myapp.new = False
+##    def mousePressEvent(self, event):
+##        x = event.scenePos().x()
+##        y = event.scenePos().y()
+##        if self.parent.ui.lines_draw.isChecked():
+##            self.parent.add_point(x, y)
+##        elif self.parent.ui.cutter.isChecked():
+##            self.parent.draw_cutter(x,y)
+##        self.parent.scene.update()
+    def mouseMoveEvent(self, event):
+        parent = self.parent
+        parent.draw_figure()
+        pen = QtGui.QPainter()
+        pen.begin(parent.image)
+        pen.setPen(parent.pen_line)
+        if parent.ui.lines_draw.isChecked():
+            x = event.scenePos().x()
+            y = event.scenePos().y()
+            if parent.edges:
+                num = len(parent.edges[-1])
+                if parent.capslock and num:
+                    if y != parent.edges[-1][1]:
+                        t = ((x - parent.edges[-1][0])/\
+                             (y - parent.edges[-1][1]))
+                    else:
+                        t = 2
+                    if abs(t) <= 1:
+                        x = parent.edges[-1][0]
+                    else:
+                        y = parent.edges[-1][1]
+                if num > 0:
+                    parent.draw_figure()
+                    pen.drawLine(parent.edges[-1][0],\
+                                    parent.edges[-1][1],\
+                                    x, y)
+        pen.end()
+            
         
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -65,13 +85,13 @@ class MyWin(QtWidgets.QMainWindow):
         
         #устанавливает сцену
         self.scene = myScene(self)
-        self.scene.setSceneRect(QtCore.QRectF(10,10,\
-                                             10+self.scene_width, 10+self.scene_height))
-        self.ui.c.setScene(self.scene)
-        self.image = QtGui.QImage(self.scene_width, self.scene_height, QtGui.QImage.Format_ARGB32_Premultiplied)
+        
+        self.image = QtGui.QImage(self.scene_width, self.scene_height, QtGui.QImage.Format_RGB32)
         self.image.fill(self.bg_color)
+        self.scene.addPixmap(QPixmap.fromImage(self.image))
 
-        self.show_image()
+        self.ui.c.setStyleSheet("background-color: white")
+        self.ui.c.setScene(self.scene)
      
         # Здесь прописываем событие нажатия на кнопку                     
         self.ui.add_point.clicked.connect(self.add_point_bttn)
@@ -90,6 +110,7 @@ class MyWin(QtWidgets.QMainWindow):
         self.cutter = [] #здесь коордиаты отсекателя
         self.new = True #отслеживание первого нажатия на канвас используется и для рисования отрезков, и для рисования отсекателя
         self.draw_coord()
+        self.capslock = False
 
         #лист бокс и друзья
         self.ui.list_point.itemDoubleClicked.connect(self.delete_point)
@@ -102,9 +123,7 @@ class MyWin(QtWidgets.QMainWindow):
         self.new = True
         
     def show_image(self):
-        self.pixmap = QtGui.QPixmap.fromImage(self.image)
-        pixItem = QtWidgets.QGraphicsPixmapItem(self.pixmap)
-        PixItem = self.scene.addItem(pixItem)
+        pass
 
     def change_color_check(self):
         self.color_check.addRect(self.rect, self.pen)
@@ -136,7 +155,6 @@ class MyWin(QtWidgets.QMainWindow):
                        abs(self.cutter[2] - self.cutter[0]), abs(self.cutter[3] - self.cutter[1]))
             self.new = True
         p.end()
-        self.show_image()
 
     def add_point_bttn(self):
         try:
@@ -183,22 +201,17 @@ class MyWin(QtWidgets.QMainWindow):
         p.begin(self.image)
         p.setPen(self.pen_line)
         for e in self.edges:
-            p.drawEllipse(e[0]-2,e[1]-2,4,4)
-            p.drawEllipse(e[2]-2,e[3]-2,4,4)
+            #p.drawEllipse(e[0]-2,e[1]-2,4,4)
+            #p.drawEllipse(e[2]-2,e[3]-2,4,4)
             p.drawLine(e[0], e[1],
                                e[2], e[3])
-##            self.draw_brez_line(self.edges[i][0], self.edges[i][1],
-##                                self.edges[i+1][0], self.edges[i+1][1])
         p.end()
-        self.show_image()
 
-    def log_prod(code1, code2):
+    def log_prod(self, code1, code2):
         p = 0
         for i in range(4):
-            p += code1[1] & code2[i]
-
+            p += code1[i] & code2[i]
         return p
-
 
     def get_code(self, point):
         #point[0] = [x1,y1]
@@ -212,24 +225,22 @@ class MyWin(QtWidgets.QMainWindow):
             code[2] = 1
         if point[1] > self.cutter[3]:
             code[3] = 1
-
         return code
 
     def is_visible(self, line):
         #0 - невидимый
         #1 - видимый
         #2 - частично видимый
-        s1 = sum(get_code(line[0]))
-        s2 = sum(get_code(line[1]))
+        s1 = sum(self.get_code(line[0]))
+        s2 = sum(self.get_code(line[1]))
 
         visible = 2
         if not s1 and not s2:
             visible = 1
         else:
-            l = log_prod(get_code(line[0]), get_code(line[1]))
+            l = self.log_prod(self.get_code(line[0]), self.get_code(line[1]))
             if l != 0:
                 visible = 0
-
         return visible
         
         
@@ -239,11 +250,51 @@ class MyWin(QtWidgets.QMainWindow):
         self.cutter[1],self.cutter[2] = self.cutter[2],self.cutter[1]
 
         for line in self.edges:
-            self.cohen_sutherland(line)
+            print(line)
+            self.cohen_sutherland([[line[0], line[1]],[line[2],line[3]]])
 
-    def cohen_sutherland(self):
-        pass
+    def cohen_sutherland(self,line):
+        p = QtGui.QPainter()
+        p.begin(self.image)
+        p.setPen(self.pen_cut)
+        flag = 1
+        t = 1
+        #проверка на вертикальность и горизонтальность
+        if line[1][0] - line[0][0] == 0:
+            flag = -1 #отрезок вертикальный
+        else:
+            t = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0])
+            if t == 0:
+                flag = 0 #горизонтальный отрезок
+        for i in range(4):
+            vis = self.is_visible(line)
+            if vis == 1:
+                p.drawLine(line[0][0], line[0][1], line[1][0],line[1][1])
+                return 0
+            elif not vis:
+                return 0
+            code1 = self.get_code(line[0])
+            code2 = self.get_code(line[1])
 
+            if code1[i] == code2[i]:
+                continue
+
+            if not code1[i]:
+                line[0], line[1] = line[1], line[0]
+
+            if flag != -1:
+                if i<2:
+                    line[0][1] = t * (self.cutter[i] - line[0][0]) + line[0][1]
+                    line[0][0] = self.cutter[i]
+                    continue
+                else:
+                    line[0][0] = (1/t) * (self.cutter[i] - line[0][1]) + line[0][0]
+
+            line[0][1] = self.cutter[i]
+        p.drawLine(line[0][0], line[0][1], line[1][0], line[1][1])
+                    
+                
+        p.end()
     def get_pos_to_delete(self):
         try:
             pos = int(self.ui.point_num_entry.text())
@@ -298,50 +349,41 @@ class MyWin(QtWidgets.QMainWindow):
         pixmap = QtGui.QPixmap(40,40)
         pixmap.fill(self.color_cut)
         self.color_check_cut.addPixmap(pixmap)
-
-    def sign(self, x):
-        if x > 0:
-            return 1
-        else:
-            return -1
-
-    def draw_brez_line(self, x1, y1, x2, y2):
-        print('here')
-        dx = int(x2 - x1)
-        dy = int(y2 - y1)
-        sx = sign(dx)
-        sy = sign(dy)
-        dx = abs(dx)
-        dy = abs(dy)    
-
-        swap = False
-        if (dy <= dx):
-            swap = False
-        else:
-            swap = True
-            dx,dy = dy,dx
         
-    
-        e = int(2*dy-dx)
-        x = int(x1)
-        y = int(y1)
-            
-        for i in range(int(dx+1)):
-            print(x,y)
-            self.image.setPixel(x,y,self.color_bord.rgb())
-            if (e>=0):
-                if (swap):
-                    x += sx
-                else:
-                    y +=sy
-                e = e-2*dx
-            if (e < 0): 
-                if (swap):
-                    y +=sy
-                else:
-                    x += sx
-                e = e+2*dy
+    def paintEvent(self, e):
+        self.scene.clear()
+        self.scene.addPixmap(QPixmap.fromImage(self.image))
+
+    def keyPressEvent(self, QKeyEvent):
+        if QKeyEvent.key() == 16777252:
+            self.capslock = not self.capslock
+
+    def mousePressEvent(self, QMouseEvent):
+        coord = QMouseEvent.pos()
+        y = coord.y()
+        x = coord.x()
+        if x >= 10 and y>=10 and\
+           y<=self.scene_height and x<= self.scene_width:
+            x -= 15
+            y -= 15
+        if self.ui.lines_draw.isChecked():
+            if self.edges:
+                if self.capslock and len(self.edges[-1]):
+                    if y != self.edges[-1][1]:
+                        t = ((x - self.edges[-1][0]) /\
+                             (y - self.edges[-1][1]))
+                    else:
+                        t = 2
+                    if abs(t) <= 1:
+                        x = self.edges[-1][0]
+                    else:
+                        y = self.edges[-1][1]
+            self.add_point(x, y)
+        elif self.ui.cutter.isChecked():
+            self.draw_cutter(x,y)
+        self.scene.update()
         
+      
 if __name__=="__main__":
     app = QtWidgets.QApplication(sys.argv)
     myapp = MyWin()
