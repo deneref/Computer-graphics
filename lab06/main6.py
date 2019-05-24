@@ -59,12 +59,6 @@ class MyWin(QtWidgets.QMainWindow):
 
         self.ui.c.setStyleSheet("background-color: white")
         self.ui.c.setScene(self.scene)
-
-##        self.scene = QtWidgets.QGraphicsScene(self)
-##        self.image = QtGui.QImage(self.scene_width,self.scene_height,QtGui.QImage.Format_RGB32)
-##        self.image.fill(self.bg_color)
-##        self.scene.addPixmap(QtGui.QPixmap.fromImage(self.image))
-##        self.ui.c.setScene(self.scene)
      
         # Здесь прописываем событие нажатия на кнопку                     
         self.ui.add_point.clicked.connect(self.add_point_bttn)
@@ -79,6 +73,7 @@ class MyWin(QtWidgets.QMainWindow):
         # Здеть тогл
         self.ui.no_stop.toggled.connect(self.switch)
         self.ui.no_stop.toggle()
+        self.with_delay = False
 
         #точки и все такое
         self.edges = []
@@ -189,6 +184,12 @@ class MyWin(QtWidgets.QMainWindow):
     def switch(self):
         self.ui.timer_label.hide()
         self.ui.timer_entry.hide()
+        if self.with_delay:
+            print("+")
+            self.with_delay = False
+        else:
+            self.with_delay = True
+            print("-")
 
     def go_delay(self):
         self.update()
@@ -203,6 +204,7 @@ class MyWin(QtWidgets.QMainWindow):
         stack = []
         stack.append(self.pixel)
         while stack:
+            QtWidgets.QApplication.processEvents()
             p = stack.pop()
             x = p[0]
             y = p[1]
