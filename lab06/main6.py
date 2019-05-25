@@ -4,16 +4,8 @@ from PyQt5 import *
 from math import *
 from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPixmap
+from MScene import *
 import time
-
-class myScene(QtWidgets.QGraphicsScene):
-    def __init__(self, parent=None):
-        QtWidgets.QGraphicsScene.__init__(self, parent)
-        
-    def mousePressEvent(self, event):
-        x = event.scenePos().x()
-        y = event.scenePos().y()
-        myapp.add_point(x, y)
         
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -59,6 +51,7 @@ class MyWin(QtWidgets.QMainWindow):
 
         self.ui.c.setStyleSheet("background-color: white")
         self.ui.c.setScene(self.scene)
+        self.ui.c.setMouseTracking(True)
      
         # Здесь прописываем событие нажатия на кнопку                     
         self.ui.add_point.clicked.connect(self.add_point_bttn)
@@ -71,14 +64,16 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui.zamkn_button.clicked.connect(self.zamkn)
 
         # Здеть тогл
-        self.ui.no_stop.toggled.connect(self.switch)
-        self.ui.no_stop.toggle()
-        self.with_delay = False
+##        self.ui.no_stop.toggled.connect(self.switch)
+##        self.ui.no_stop.toggle()
+        #self.with_delay = False
 
         #точки и все такое
         self.edges = []
         self.new = True
         self.get_pixel = False
+        self.capslock = False
+        self.with_delay = False
         self.draw_coord()
         self.last_point = 0
         self.pixel = []
@@ -100,9 +95,10 @@ class MyWin(QtWidgets.QMainWindow):
         
 
     def zamkn(self):
-        self.add_point(self.edges[self.last_point][0], self.edges[self.last_point][1])
-        self.last_point = len(self.edges)
-        self.new = True
+        if not self.new:
+            self.add_point(self.edges[self.last_point][0], self.edges[self.last_point][1])
+            self.last_point = len(self.edges)
+            self.new = True
 
     def add_pixel(self):
         self.get_pixel = True
@@ -153,16 +149,8 @@ class MyWin(QtWidgets.QMainWindow):
             self.ui.list_point.addItem("{} {}".format(x,y))
 
     def draw_edges(self):
-        p = QtGui.QPainter()
-        p.begin(self.image)
-        p.setPen(self.pen_bord)
         for e in self.edges:
-            p.drawEllipse(e[0]-2,e[1]-2,4,4)
-            p.drawLine(e[0], e[1],
-                               e[2], e[3])
-##            self.draw_brez_line(self.edges[i][0], self.edges[i][1],
-##                                self.edges[i+1][0], self.edges[i+1][1])
-        p.end()
+            self.Bresenham(e[0], e[1], e[2], e[3], self.color_bord.rgb())
 
     def get_pos_to_delete(self):
         try:
@@ -182,29 +170,20 @@ class MyWin(QtWidgets.QMainWindow):
         self.draw_figure()
 
     def switch(self):
-        self.ui.timer_label.hide()
-        self.ui.timer_entry.hide()
-        if self.with_delay:
-            print("+")
-            self.with_delay = False
-        else:
-            self.with_delay = True
-            print("-")
+        pass
 
     def go_delay(self):
-        self.update()
+        #self.update()
         self.repaint()
 
     def fill(self):
-        pix = QtGui.QPixmap()
-        paint = QtGui.QPainter()
-        paint.begin(self.image)
         if (not self.pixel):
             return 0
         stack = []
         stack.append(self.pixel)
         while stack:
-            QtWidgets.QApplication.processEvents()
+            if self.ui.with_stop.isChecked:
+                QtWidgets.QApplication.processEvents()
             p = stack.pop()
             x = p[0]
             y = p[1]
@@ -216,7 +195,7 @@ class MyWin(QtWidgets.QMainWindow):
                 self.image.setPixel(x,y,self.color_inside.rgb())
                 x-=1
 
-            if self.ui.with_stop.isChecked:
+            if self.with_delay:
                 self.go_delay()
             
             #сохраняет крайний слева пиксель
@@ -290,19 +269,16 @@ class MyWin(QtWidgets.QMainWindow):
         self.change_color_check()
     
     def draw_coord(self):
-        p = QtGui.QPainter()
-        p.begin(self.image)
-        p.drawLine(0, 0,\
+        self.Bresenham(0, 0,\
                            self.scene_width, 0)
-        p.drawLine(0, 0,\
+        self.Bresenham(0, 0,\
                            0, self.scene_height)
         
-        p.drawLine(10 , self.scene_height - 20,\
+        self.Bresenham(10 , self.scene_height - 20,\
                            0, self.scene_height)
 
-        p.drawLine(self.scene_width, 0,\
+        self.Bresenham(self.scene_width, 0,\
                            self.scene_width - 20, 0 + 10)
-        p.end()
 
     def change_color_check(self):
         pixmap = QtGui.QPixmap(40,40)
@@ -313,21 +289,50 @@ class MyWin(QtWidgets.QMainWindow):
         pixmap.fill(self.color_inside)
         self.color_check_inside.addPixmap(pixmap)
 
+    def keyPressEvent(self, QKeyEvent):
+        if QKeyEvent.key() == 16777252:
+            self.capslock = not self.capslock
+        elif QKeyEvent.key() == QtCore.Qt.Key_Return and\
+             len(self.edges) > 2:
+            self.zamkn()
+
+    def mousePressEvent(self, QMouseEvent):
+        if not self.get_pixel:
+            self.draw_figure()
+        coord = QMouseEvent.pos()
+        y = coord.y()
+        x = coord.x()
+        if x >= 10 and y>=10 and\
+           y<=self.scene_height and x<= self.scene_width:
+            x -= 15
+            y -= 15
+        if self.edges:
+            if self.capslock and len(self.edges[-1]):
+                if y != self.edges[-1][1]:
+                    t = ((x - self.edges[-1][0]) /\
+                            (y - self.edges[-1][1]))
+                else:
+                    t = 2
+                if abs(t) <= 1:
+                    x = self.edges[-1][0]
+                else:
+                    y = self.edges[-1][1]
+        self.add_point(x, y)
+        self.scene.update()
+
     def sign(self, x):
         if x > 0:
             return 1
         else:
             return -1
 
-    def draw_brez_line(self, x1, y1, x2, y2):
-        print('here')
+    def Bresenham(self,x1,y1,x2,y2,color = QtGui.QColor(0,0,0).rgb(),t=False):
         dx = int(x2 - x1)
         dy = int(y2 - y1)
-        sx = sign(dx)
-        sy = sign(dy)
+        sx = self.sign(dx)
+        sy = self.sign(dy)
         dx = abs(dx)
         dy = abs(dy)    
-
         swap = False
         if (dy <= dx):
             swap = False
@@ -340,9 +345,13 @@ class MyWin(QtWidgets.QMainWindow):
         x = int(x1)
         y = int(y1)
             
-        for i in range(int(dx+1)):
-            print(x,y)
-            self.image.setPixel(x,y,self.color_bord.rgb())
+        for i in range(dx+1):
+            self.image.setPixel(x,y,color)
+            if t:
+                self.image.setPixel(x+1,y,color)
+                self.image.setPixel(x-1,y,color)
+                self.image.setPixel(x,y+1,color)
+                self.image.setPixel(x,y-1,color)
             if (e>=0):
                 if (swap):
                     x += sx
@@ -355,7 +364,7 @@ class MyWin(QtWidgets.QMainWindow):
                 else:
                     x += sx
                 e = e+2*dy
-        
+
 if __name__=="__main__":
     app = QtWidgets.QApplication(sys.argv)
     myapp = MyWin()
