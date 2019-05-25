@@ -7,27 +7,19 @@ from PyQt5.QtGui import QPixmap
 import time
 
 class myScene(QtWidgets.QGraphicsScene):
-    def __init__(self, parent=None):
-        QtWidgets.QGraphicsScene.__init__(self, parent)
+    def __init__(self, parent):
+##        QtWidgets.QGraphicsScene.__init__(self, parent)
+        super().__init__()
         self.parent = parent
         
-##    def mousePressEvent(self, event):
-##        x = event.scenePos().x()
-##        y = event.scenePos().y()
-##        if self.parent.ui.lines_draw.isChecked():
-##            self.parent.add_point(x, y)
-##        elif self.parent.ui.cutter.isChecked():
-##            self.parent.draw_cutter(x,y)
-##        self.parent.scene.update()
     def mouseMoveEvent(self, event):
         parent = self.parent
         parent.draw_figure()
-        pen = QtGui.QPainter()
-        pen.begin(parent.image)
-        pen.setPen(parent.pen_line)
+        cord = event.scenePos()
+        x = cord.x()
+        y = cord.y()        
+        
         if parent.ui.lines_draw.isChecked():
-            x = event.scenePos().x()
-            y = event.scenePos().y()
             if parent.edges:
                 num = len(parent.edges[-1])
                 if parent.capslock and num:
@@ -41,12 +33,62 @@ class myScene(QtWidgets.QGraphicsScene):
                     else:
                         y = parent.edges[-1][1]
                 if num > 0:
-                    parent.draw_figure()
-                    pen.drawLine(parent.edges[-1][0],\
+                    parent.Bresenham(parent.edges[-1][0],\
                                     parent.edges[-1][1],\
-                                    x, y)
-        pen.end()
-            
+                                    x, y, parent.color_line.rgb())
+                    parent.repaint()
+        elif parent.ui.cutter.isChecked():
+            if len(parent.cutter):
+                parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+                                 x, parent.cutter[1])
+                parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+                                 parent.cutter[0], y)
+                
+                parent.Bresenham(parent.cutter[0], y,\
+                                 x, y)
+                parent.Bresenham(x, parent.cutter[1],\
+                                 x, y)
+                parent.repaint()
+
+    def mouseReleaseEvent(self, event):
+        parent = self.parent
+        parent.draw_figure()
+        
+        cord = event.scenePos()
+        x = cord.x()
+        y = cord.y()
+        
+        if parent.ui.lines_draw.isChecked():
+            if parent.edges:
+                num = len(parent.edges[-1])
+                if parent.capslock and num:
+                    if y != parent.edges[-1][1]:
+                        t = ((x - parent.edges[-1][0])/\
+                             (y - parent.edges[-1][1]))
+                    else:
+                        t = 2
+                    if abs(t) <= 1:
+                        x = parent.edges[-1][0]
+                    else:
+                        y = parent.edges[-1][1]
+                if num > 0:
+                    parent.Bresenham(parent.edges[-1][0],\
+                                     parent.edges[-1][1],\
+                                     x,y)
+                    parent.add_point(x,y)
+        elif parent.ui.cutter.isChecked():
+            print(parent.cutter, x ,y)
+            parent.draw_cutter(x,y)
+##            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+##                                 x, parent.cutter[1])
+##            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+##                                 parent.cutter[0], y)
+##            parent.Bresenham(parent.cutter[0], y,\
+##                                 x, y)
+##            parent.Bresenham(x, parent.cutter[1],\
+##                                 x, y)
+            print(parent.cutter)
+        parent.repaint()
         
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -121,9 +163,6 @@ class MyWin(QtWidgets.QMainWindow):
         self.draw_coord()
         self.ui.list_point.clear()
         self.new = True
-        
-    def show_image(self):
-        pass
 
     def change_color_check(self):
         self.color_check.addRect(self.rect, self.pen)
@@ -136,9 +175,6 @@ class MyWin(QtWidgets.QMainWindow):
 
     def draw_cutter(self, x, y):
         self.draw_figure()
-        p = QtGui.QPainter()
-        p.begin(self.image)
-        p.setPen(self.pen_cut)
         if self.new:
             self.cutter = []
             self.cutter.append(x); self.cutter.append(y)
@@ -151,10 +187,18 @@ class MyWin(QtWidgets.QMainWindow):
                 self.cutter[0], self.cutter[2] = self.cutter[2],self.cutter[0]
             if self.cutter[1] > self.cutter[3]:
                 self.cutter[1], self.cutter[3] = self.cutter[3], self.cutter[1]
-            p.drawRect(self.cutter[0], self.cutter[1],\
-                       abs(self.cutter[2] - self.cutter[0]), abs(self.cutter[3] - self.cutter[1]))
+
+            print(self.cutter)
+            self.Bresenham(self.cutter[0], self.cutter[1],\
+                                 self.cutter[2], self.cutter[1])
+            self.Bresenham(self.cutter[0], self.cutter[1],\
+                                 self.cutter[0], self.cutter[3])                
+            self.Bresenham(self.cutter[0], self.cutter[3],\
+                                 self.cutter[2], self.cutter[3])
+            self.Bresenham(self.cutter[2], self.cutter[1],\
+                                 self.cutter[2], self.cutter[3])
+            #self.update()
             self.new = True
-        p.end()
 
     def add_point_bttn(self):
         try:
@@ -201,10 +245,8 @@ class MyWin(QtWidgets.QMainWindow):
         p.begin(self.image)
         p.setPen(self.pen_line)
         for e in self.edges:
-            #p.drawEllipse(e[0]-2,e[1]-2,4,4)
-            #p.drawEllipse(e[2]-2,e[3]-2,4,4)
-            p.drawLine(e[0], e[1],
-                               e[2], e[3])
+            self.Bresenham(e[0], e[1],\
+                           e[2], e[3], self.color_line.rgb())
         p.end()
 
     def log_prod(self, code1, code2):
@@ -269,7 +311,7 @@ class MyWin(QtWidgets.QMainWindow):
         for i in range(4):
             vis = self.is_visible(line)
             if vis == 1:
-                p.drawLine(line[0][0], line[0][1], line[1][0],line[1][1])
+                self.Bresenham(line[0][0], line[0][1], line[1][0],line[1][1])
                 return 0
             elif not vis:
                 return 0
@@ -291,7 +333,8 @@ class MyWin(QtWidgets.QMainWindow):
                     line[0][0] = (1/t) * (self.cutter[i] - line[0][1]) + line[0][0]
 
             line[0][1] = self.cutter[i]
-        p.drawLine(line[0][0], line[0][1], line[1][0], line[1][1])
+        self.Bresenham(line[0][0], line[0][1], line[1][0], line[1][1],\
+                       self.color_cut.rgb())
                     
                 
         p.end()
@@ -326,20 +369,16 @@ class MyWin(QtWidgets.QMainWindow):
         self.change_color_check()
     
     def draw_coord(self):
-        p = QtGui.QPainter()
-        p.begin(self.image)
-        p.drawLine(0, 0,\
+        self.Bresenham(0, 0,\
                            self.scene_width, 0)
-        p.drawLine(0, 0,\
+        self.Bresenham(0, 0,\
                            0, self.scene_height)
         
-        p.drawLine(10 , self.scene_height - 20,\
+        self.Bresenham(10 , self.scene_height - 20,\
                            0, self.scene_height)
 
-        p.drawLine(self.scene_width, 0,\
+        self.Bresenham(self.scene_width, 0,\
                            self.scene_width - 20, 0 + 10)
-        self.show_image()
-        p.end()
 
     def change_color_check(self):
         pixmap = QtGui.QPixmap(40,40)
@@ -359,6 +398,7 @@ class MyWin(QtWidgets.QMainWindow):
             self.capslock = not self.capslock
 
     def mousePressEvent(self, QMouseEvent):
+        self.draw_figure()
         coord = QMouseEvent.pos()
         y = coord.y()
         x = coord.x()
@@ -383,6 +423,48 @@ class MyWin(QtWidgets.QMainWindow):
             self.draw_cutter(x,y)
         self.scene.update()
         
+    def sign(self, x):
+        return int((x > 0) - (x < 0))
+        
+    def Bresenham(self,x1,y1,x2,y2,color = QtGui.QColor(0,0,0).rgb(),t=False):
+            dx = int(x2 - x1)
+            dy = int(y2 - y1)
+            sx = self.sign(dx)
+            sy = self.sign(dy)
+            dx = abs(dx)
+            dy = abs(dy)    
+
+            swap = False
+            if (dy <= dx):
+                swap = False
+            else:
+                swap = True
+                dx,dy = dy,dx
+        
+    
+            e = int(2*dy-dx)
+            x = int(x1)
+            y = int(y1)
+            
+            for i in range(dx+1):
+                self.image.setPixel(x,y,color)
+                if t:
+                    self.image.setPixel(x+1,y,color)
+                    self.image.setPixel(x-1,y,color)
+                    self.image.setPixel(x,y+1,color)
+                    self.image.setPixel(x,y-1,color)
+                if (e>=0):
+                    if (swap):
+                        x += sx
+                    else:
+                        y +=sy
+                    e = e-2*dx
+                if (e < 0): 
+                    if (swap):
+                        y +=sy
+                    else:
+                        x += sx
+                    e = e+2*dy
       
 if __name__=="__main__":
     app = QtWidgets.QApplication(sys.argv)
