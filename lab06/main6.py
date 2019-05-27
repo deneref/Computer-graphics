@@ -65,8 +65,8 @@ class MyWin(QtWidgets.QMainWindow):
 
         # Здеть тогл
 ##        self.ui.no_stop.toggled.connect(self.switch)
-##        self.ui.no_stop.toggle()
-        #self.with_delay = False
+        self.ui.no_stop.toggle()
+        self.with_delay = True
 
         #точки и все такое
         self.edges = []
@@ -182,8 +182,10 @@ class MyWin(QtWidgets.QMainWindow):
         stack = []
         stack.append(self.pixel)
         while stack:
-            if self.ui.with_stop.isChecked:
+            if self.with_delay:
                 QtWidgets.QApplication.processEvents()
+##            if self.ui.with_stop.isChecked():
+##                QtWidgets.QApplication.processEvents()
             p = stack.pop()
             x = p[0]
             y = p[1]
@@ -295,6 +297,9 @@ class MyWin(QtWidgets.QMainWindow):
         elif QKeyEvent.key() == QtCore.Qt.Key_Return and\
              len(self.edges) > 2:
             self.zamkn()
+        elif QKeyEvent.key() == QtCore.Qt.Key_F:
+            print("1")
+            self.with_delay = not self.with_delay
 
     def mousePressEvent(self, QMouseEvent):
         if not self.get_pixel:

@@ -144,7 +144,7 @@
       <x>1220</x>
       <y>449</y>
       <width>351</width>
-      <height>91</height>
+      <height>101</height>
      </rect>
     </property>
     <property name="title">
@@ -160,24 +160,6 @@
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="2">
-       <widget class="QLineEdit" name="timer_entry"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="timer_label">
-        <property name="font">
-         <font>
-          <family>Yu Gothic UI Semibold</family>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>t</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QRadioButton" name="no_stop">
         <property name="font">
@@ -207,22 +189,6 @@
          <string>С прерыванием</string>
         </property>
        </widget>
-      </item>
-      <item row="2" column="3">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
