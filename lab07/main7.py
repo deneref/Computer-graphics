@@ -52,7 +52,8 @@ class myScene(QtWidgets.QGraphicsScene):
 
     def mouseReleaseEvent(self, event):
         parent = self.parent
-        parent.draw_figure()
+        if not parent.new:
+            parent.draw_figure()
         
         cord = event.scenePos()
         x = cord.x()
@@ -72,22 +73,17 @@ class myScene(QtWidgets.QGraphicsScene):
                     else:
                         y = parent.edges[-1][1]
                 if num > 0:
-                    parent.Bresenham(parent.edges[-1][0],\
-                                     parent.edges[-1][1],\
-                                     x,y)
                     parent.add_point(x,y)
         elif parent.ui.cutter.isChecked():
-            print(parent.cutter, x ,y)
             parent.draw_cutter(x,y)
-##            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
-##                                 x, parent.cutter[1])
-##            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
-##                                 parent.cutter[0], y)
-##            parent.Bresenham(parent.cutter[0], y,\
-##                                 x, y)
-##            parent.Bresenham(x, parent.cutter[1],\
-##                                 x, y)
-            print(parent.cutter)
+            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+                                 x, parent.cutter[1])
+            parent.Bresenham(parent.cutter[0], parent.cutter[1],\
+                                 parent.cutter[0], y)
+            parent.Bresenham(parent.cutter[0], y,\
+                                 x, y)
+            parent.Bresenham(x, parent.cutter[1],\
+                                 x, y)
         parent.repaint()
         
 class MyWin(QtWidgets.QMainWindow):
@@ -134,6 +130,7 @@ class MyWin(QtWidgets.QMainWindow):
 
         self.ui.c.setStyleSheet("background-color: white")
         self.ui.c.setScene(self.scene)
+        #self.ui.c.setMouseTracking(True)
      
         # Здесь прописываем событие нажатия на кнопку                     
         self.ui.add_point.clicked.connect(self.add_point_bttn)
@@ -188,7 +185,6 @@ class MyWin(QtWidgets.QMainWindow):
             if self.cutter[1] > self.cutter[3]:
                 self.cutter[1], self.cutter[3] = self.cutter[3], self.cutter[1]
 
-            print(self.cutter)
             self.Bresenham(self.cutter[0], self.cutter[1],\
                                  self.cutter[2], self.cutter[1])
             self.Bresenham(self.cutter[0], self.cutter[1],\
@@ -225,7 +221,6 @@ class MyWin(QtWidgets.QMainWindow):
                 self.print_to_list()
             if len(self.edges) > 0:
                 self.draw_figure()
-##            self.ui.list_point.addItem("{} {}".format(x,y))
 
     def draw_figure(self):
         self.image.fill(self.bg_color)
@@ -241,13 +236,18 @@ class MyWin(QtWidgets.QMainWindow):
             self.ui.list_point.addItem("{}   {}   {}   {}".format(x1,y1, x2, y2))
 
     def draw_edges(self):
-        p = QtGui.QPainter()
-        p.begin(self.image)
-        p.setPen(self.pen_line)
         for e in self.edges:
             self.Bresenham(e[0], e[1],\
                            e[2], e[3], self.color_line.rgb())
-        p.end()
+        if len(self.cutter) == 4:
+            self.Bresenham(self.cutter[0], self.cutter[1],\
+                                 self.cutter[2], self.cutter[1])
+            self.Bresenham(self.cutter[0], self.cutter[1],\
+                                 self.cutter[0], self.cutter[3])                
+            self.Bresenham(self.cutter[0], self.cutter[3],\
+                                 self.cutter[2], self.cutter[3])
+            self.Bresenham(self.cutter[2], self.cutter[1],\
+                                 self.cutter[2], self.cutter[3])
 
     def log_prod(self, code1, code2):
         p = 0
@@ -292,7 +292,6 @@ class MyWin(QtWidgets.QMainWindow):
         self.cutter[1],self.cutter[2] = self.cutter[2],self.cutter[1]
 
         for line in self.edges:
-            print(line)
             self.cohen_sutherland([[line[0], line[1]],[line[2],line[3]]])
 
     def cohen_sutherland(self,line):
@@ -421,7 +420,7 @@ class MyWin(QtWidgets.QMainWindow):
             self.add_point(x, y)
         elif self.ui.cutter.isChecked():
             self.draw_cutter(x,y)
-        self.scene.update()
+        #self.scene.update()
         
     def sign(self, x):
         return int((x > 0) - (x < 0))
